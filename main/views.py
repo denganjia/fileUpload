@@ -32,6 +32,10 @@ def login():
 				return redirect(url_for('main.teacher_home_page', Account=form.account.data))
 	return render_template('Login.html', form=form)
 
+@main.route('/admin',methods=['GET','POST'])
+def admin():
+	pass
+
 
 @main.route('/home/student/<Account>', methods=['GET', 'POST'])
 @login_required
