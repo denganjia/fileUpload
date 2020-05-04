@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>作业详情</title>
+</head>
+<body>
+<h2>{{ job_name }}</h2>
+<a href="{{ request.referrer }}">返回</a>
+
+{#作业下载#}
+<a href="{{ url_for('main.download',filename = job_name) }}" target="_blank">下载作业压缩包</a>
+<div about="已交作业">
+    <ol>
+        已交作业
+        {% if isSubmit %}
+            {% for key,value in isSubmit.items() %}
+                <li>{{ key }}&nbsp;&nbsp;{{ value }}</li>
+            {% endfor %}
+        {% else %}
+            <li>无</li>
+        {% endif %}
+    </ol>
+</div>
+<div about="未交作业">
+    <ol>
+        未交作业
+        {% if noSubmit %}
+            {% for key,value in noSubmit.items() %}
+                <li>{{ key }}&nbsp;&nbsp;{{ value }}</li>
+            {% endfor %}
+        {% else %}
+            <li>无</li>
+        {% endif %}
+    </ol>
+</div>
+
+</body>
+</html>

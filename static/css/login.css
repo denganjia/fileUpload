@@ -1,0 +1,13 @@
+body {
+    background-image: url("../image/1221.jpg");
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+}
+
+#login {
+    width: 30%;
+    height: auto;
+    margin: 15% auto 0;
+    background-color: #00000060;
+    padding: 20px 50px;
+}
