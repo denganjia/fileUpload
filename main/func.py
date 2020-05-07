@@ -8,13 +8,14 @@ from ext import db
 P = Pinyin()
 
 
-def check_stu(Account, Password):
-	stu = Student.query.filter_by(s_Num=Account, s_Password=Password).first()
+def check_stu(Account):
+	stu = Student.query.filter_by(s_Num=Account).first()
+
 	return stu
 
 
-def check_teacher(Account, Password):
-	teacher = Teacher.query.filter_by(t_Account=Account, t_Password=Password).first()
+def check_teacher(Account):
+	teacher = Teacher.query.filter_by(t_Account=Account).first()
 	return teacher
 
 
