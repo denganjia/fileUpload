@@ -1,8 +1,10 @@
-from flask import Flask
+
+from flask import Flask,g
 from config import config
 from ext import db, login_manager
 import os
 
+config_name = ''
 
 def creat_app(config_name=None):
     if not config_name:
@@ -10,8 +12,8 @@ def creat_app(config_name=None):
     app = Flask(__name__)
 
     app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
 
+    config[config_name].init_app(app)
     login_manager.init_app(app)
     db.init_app(app)
 

@@ -2,7 +2,9 @@
 
 此项目是我自己开发用于班级作业提交，看见想用就可以拿去用。
 
-数据库的连接在config.py文件里，记得修改。设计了四张表：students、teachers、jobs、cursors。
+flask-sqlalchemy的连接信息放在了config文件里，pymysql的连接信息放在main/func.py文件第12行。请自行修改
+
+设计了四张表：students、teachers、jobs、cursors。
 
 stu表存放的是学生的信息：学号姓名班级。tea表存放的是老师的信息：账号密码还有交的课……。
 

@@ -1,18 +1,20 @@
 import os, shutil
-from flask import render_template, redirect, url_for, session, send_from_directory, request, flash, g
+
+from flask import render_template, redirect, url_for, send_from_directory, request, current_app, g, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 
+# from models import Student, Teacher, Job
 from . import main
 from .forms import LoginForm, CreateJobFrom, FileUploadForm, ChangePassword
 from .func import *
 from ext import db, login_manager
 
+
 login_manager.login_view = 'main.login'
+Work = Work()
+DateIls = DateIls()
 
-
-# OUTPUT_FOLDER = os.getcwd() + '\\download\\'
-# UPLOAD_FOLDER = os.getcwd() + '\\upload\\'
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -103,7 +105,7 @@ def teacher_home_page(Account):
         job_name = form.job_Name.data
         upload_path = classname + '\\' + job_name
         try:
-            os.makedirs(Config.UPLOAD_FOLDER + upload_path)
+            os.makedirs(current_app.config['UPLOAD_FOLDER'] + upload_path)
         except:
             flash("作业已存在")
             return redirect(url_for('main.teacher_home_page', Account=Account))
@@ -127,7 +129,7 @@ def file_upload(schoolNo, jobName):
         for f in file_list:
             if f and check_file(f.filename):
                 filename = secure_filename(f.filename)
-                f.save(os.path.join(Config.UPLOAD_FOLDER + jobs.job_path, filename))
+                f.save(os.path.join(current_app.config['UPLOAD_FOLDER'] + jobs.job_path, filename))
         Work.sut_change(jobName, schoolNo)
         job_list = Work.job_need_upload(schoolNo)
         return redirect(url_for('main.student_home_page', Account=schoolNo, list=job_list))
@@ -151,11 +153,11 @@ def del_job(jobID):
     job = Job.query.filter_by(job_id=jobID).first()
     tea = Teacher.query.filter_by(t_Name=job.t_name).first()
     try:
-        shutil.rmtree(os.path.join(Config.UPLOAD_FOLDER, job.job_path))
+        shutil.rmtree(os.path.join(current_app.config['UPLOAD_FOLDER'], job.job_path))
         Work.delete_job(jobID)
     except:
-        return redirect(url_for('main.teacher_home_page', teachID=tea.t_Account))
-    return redirect(url_for('main.teacher_home_page', teachID=tea.t_Account))
+        return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+    return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
 
 
 @main.route('/endJob/<jobname>')
@@ -165,9 +167,9 @@ def end_job(jobname):
     job = Job.query.filter_by(job_name=jobname).first()
     tea = Teacher.query.filter_by(t_Name=job.t_name).first()
     Work.tea_change(jobname)
-    base_name = Config.OUTPUT_FOLDER + jobname
+    base_name = current_app.config['OUTPUT_FOLDER'] + jobname
     for_mat = 'zip'
-    root_dir = Config.UPLOAD_FOLDER + job.job_path
+    root_dir = current_app.config['UPLOAD_FOLDER'] + job.job_path
     shutil.make_archive(base_name, for_mat, root_dir)
     return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
 
@@ -176,7 +178,7 @@ def end_job(jobname):
 @login_required
 def download(filename):
     """文件下载"""
-    dir_path = Config.OUTPUT_FOLDER
+    dir_path = current_app.config['OUTPUT_FOLDER']
     filename = filename + '.zip'
     return send_from_directory(dir_path, filename, as_attachment=True)
 
