@@ -30,5 +30,5 @@ class CreateJobFrom(FlaskForm):
 class ChangePassword(FlaskForm):
     old_password = PasswordField('旧密码', validators=[DataRequired()])
     new_password = PasswordField('新密码', validators=[DataRequired(), Length(min=6)])
-    repeat_password = PasswordField('确认新密码', validators=[DataRequired(), EqualTo(new_password)])
+    new_password_repeat = PasswordField('确认新密码', validators=[DataRequired(), EqualTo(new_password)])
     submit = SubmitField('提交')
