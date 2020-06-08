@@ -35,7 +35,6 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@localhost/class'
 
 
-
 config = {
     'development': DevelopmentConfig,
     'default': DevelopmentConfig,

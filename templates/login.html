@@ -6,28 +6,36 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>登录</title>
-    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/login.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/login.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/iconfont.css') }}" type="text/css">
     <link rel="icon" href="../static/image/head.gif" type="image/gif">
+    <script src="{{ url_for('static',filename = 'js/jquery-3.4.1.min.js') }}"></script>
     <script src="{{ url_for('static',filename='js/login.js') }}"></script>
 </head>
 <body onload="f()">
 <div class="login_box">
     <div class="message">
         <h1>志在山顶的人</h1>
-        <h3>不会贪念山腰的风景</h3>
+        <h2>不会贪念山腰的风景</h2>
     </div>
     <div class="login">
         <div class="form">
-            <h3>LOGIN</h3>
+            <h2>LOGIN</h2>
             <form action="" method="POST">
                 {{-form.csrf_token() }}
-                <div class="username"><i class="iconfont icon-icon-test"></i>{{-form.account }}</div>
-                <div class="password"><i class="iconfont icon-password"></i>{{-form.password }}</div>
+                <div class="username">{# <i class="iconfont icon-icon-test"></i> #}{{-form.account }}</div>
+                <div class="password">{# <i class="iconfont icon-password"></i> #}{{-form.password }}</div>
                 {#            {{-form.role.label }}<br>{{-form.role }}<br>#}
                 <div class="role">{{ form.types }}</div>
                 <div class="submit">{{-form.submit }}</div>
             </form>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p id="result">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         </div>
     </div>
 </div>

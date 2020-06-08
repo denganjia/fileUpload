@@ -27,7 +27,6 @@ elif config_name == 'production':
 
 def check_stu(Account):
     stu = Student.query.filter_by(s_Num=Account).first()
-
     return stu
 
 
