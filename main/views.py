@@ -46,7 +46,7 @@ def login():
     return render_template('login.html', form=form)
 
 
-@main.route('/changpassword', methods=['GET', 'POST'])
+@main.route('/chang_password', methods=['GET', 'POST'])
 def chang():
     account = request.args.get('account')
     role = request.args.get('role')
@@ -140,17 +140,17 @@ def file_upload(schoolNo, jobName):
     return render_template('upload_file.html', form=file_upload_form)
 
 
-@main.route('/dateils/<job_id>')
+@main.route('/details/<job_id>')
 @login_required
-def dateils(job_id):
+def details(job_id):
     """返回两个字典：提交和未提交的学号、姓名"""
     job = Job.query.filter_by(job_id=job_id).first()
     is_submit = DateIls.is_submit(job_id)
     no_submit = DateIls.no_submit(job_id)
-    return render_template('dateils.html', job_name=job.job_name, isSubmit=is_submit, noSubmit=no_submit)
+    return render_template('details.html', job_name=job.job_name, isSubmit=is_submit, noSubmit=no_submit)
 
 
-@main.route('/deljob/<jobID>')
+@main.route('/delete_job/<jobID>')
 @login_required
 def del_job(jobID):
     """删除作业会删除本地存储目录和数据库相关记录"""
@@ -159,19 +159,19 @@ def del_job(jobID):
     try:
         shutil.rmtree(os.path.join(current_app.config['UPLOAD_FOLDER'], job.job_path))
         Work.delete_job(jobID)
-    except:
+    except():
         return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
     return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
 
 
-@main.route('/endJob/<jobname>')
+@main.route('/endJob/<job_name>')
 @login_required
-def end_job(jobname):
+def end_job(job_name):
     """结束作业后，将当前收集的作业打包，数据库作业状态修改为结束"""
-    job = Job.query.filter_by(job_name=jobname).first()
+    job = Job.query.filter_by(job_name=job_name).first()
     tea = Teacher.query.filter_by(t_Name=job.t_name).first()
-    Work.tea_change(jobname)
-    base_name = current_app.config['OUTPUT_FOLDER'] + jobname
+    Work.tea_change(job_name)
+    base_name = current_app.config['OUTPUT_FOLDER'] + job_name
     for_mat = 'zip'
     root_dir = current_app.config['UPLOAD_FOLDER'] + job.job_path
     shutil.make_archive(base_name, for_mat, root_dir)

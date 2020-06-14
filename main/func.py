@@ -44,7 +44,8 @@ class DateIls:
     返回两个字典，一个是交了作业，一个是没交
     """
 
-    def no_submit(self, job_id):
+    @staticmethod
+    def no_submit(job_id):
         cursor = conn.cursor()
         sql = "select stu_Num,stu_Name from courses where %s = 0 " % job_id
         try:
@@ -59,7 +60,8 @@ class DateIls:
         finally:
             cursor.close()
 
-    def is_submit(self, job_id):
+    @staticmethod
+    def is_submit(job_id):
         cursor = conn.cursor()
         sql = "select stu_Num,stu_Name from courses where %s = 1" % job_id
         try:
@@ -69,17 +71,21 @@ class DateIls:
             for res in res_list:
                 is_submit_dict[res[0]] = res[1]
             return is_submit_dict
-        except:
+        except():
             flash('出错了')
         finally:
             cursor.close()
 
 
 class Work:
-    def creat_job(self, t_name, classname, job_name, upload_path):
+    @staticmethod
+    def creat_job(t_name, classname, job_name, upload_path):
         """
         创建作业
-        :param job_name:
+        :param upload_path: 保存上传的作业的路径
+        :param classname: 班级名称
+        :param t_name: 教师名称
+        :param job_name: 作业名称
         :return:
         """
         cursor = conn.cursor()
@@ -95,7 +101,7 @@ class Work:
                 db.session.add(job_creat)
                 cursor.execute(sql_courses_alter)
                 db.session.commit()
-            except:
+            except():
                 conn.rollback()
                 db.session.rollback()
                 flash("出错！")
@@ -104,11 +110,12 @@ class Work:
             finally:
                 cursor.close()
 
-    def sut_change(slef, jobName, schoolNo):
+    @staticmethod
+    def sut_change(jobName, schoolNo):
         """
         如果作业提交，就在数据库中将此作业修改为1
-        :param jobName:
-        :param schoolNo:
+        :param jobName:作业名称/任务名称
+        :param schoolNo:学号
         :return:
         """
         jobs = Job.query.filter_by(job_name=jobName).first()
@@ -118,12 +125,14 @@ class Work:
         conn.commit()
         cursor.close()
 
-    def tea_change(self, jobname):
+    @staticmethod
+    def tea_change(job_name):
         cursor = conn.cursor()
-        sql = "update jobs set is_over = 1 where job_name = '%s' " % jobname
+        sql = "update jobs set is_over = 1 where job_name = '%s' " % job_name
         cursor.execute(sql)
 
-    def job_need_upload(self, schoolNo):
+    @staticmethod
+    def job_need_upload(schoolNo):
         """
         返回学生没有提交的作业
         :param schoolNo:
@@ -145,7 +154,7 @@ class Work:
             if res[0] == 0:
                 res_l.append(job_list[j])
         job_need_upload_list = []
-        for i in (res_l):
+        for i in res_l:
             jobs = Job.query.filter_by(job_id=str(i), is_over=0)  # "select job_name from jobs where job_id = '%s'" % i
             # cursor.execute(sql)
             # res = cursor.fetchall()
@@ -154,21 +163,24 @@ class Work:
         cursor.close()
         return job_need_upload_list
 
-    def job_list(self, t_name, n):
+    @staticmethod
+    def job_list(t_name, n):
         jobs = Job.query.filter_by(t_name=t_name, is_over=n).all()
         jobs_name_dict = {}
         for job in jobs:
             jobs_name_dict[job.job_name] = job.job_id
         return jobs_name_dict
 
-    def delete_job(self, jobID):
+    @staticmethod
+    def delete_job(jobID):
         cursor = conn.cursor()
         sql_del_jobs = "delete from jobs where job_id = '%s'" % jobID
         sql_del_courses = "alter table courses drop column %s" % jobID
         try:
             cursor.execute(sql_del_jobs)
             cursor.execute(sql_del_courses)
-        except:
+
+        except():
             flash('删除作业出错')
             conn.rollback()
         else:
