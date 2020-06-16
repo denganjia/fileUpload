@@ -29,6 +29,7 @@ def login():
                     return redirect(url_for('main.student_home_page', Account=form.account.data))
                 else:
                     flash('账号或密码错误！请重新输入')
+
             else:
                 flash('账号或密码错误！请重新输入')
         if form.types.data == 'teacher':
@@ -110,7 +111,7 @@ def teacher_home_page(Account):
         upload_path = classname + '\\' + job_name
         try:
             os.makedirs(current_app.config['UPLOAD_FOLDER'] + upload_path)
-        except:
+        except():
             flash("作业已存在")
             return redirect(url_for('main.teacher_home_page', Account=Account))
         Work.creat_job(tea.t_Name, classname, job_name, upload_path)
@@ -128,7 +129,7 @@ def file_upload(schoolNo, jobName):
     """
     file_upload_form = FileUploadForm()
     jobs = Job.query.filter_by(job_name=jobName).first()
-    if file_upload_form.validate_on_submit():
+    if request.method == 'POST':
         file_list = request.files.getlist('file')
         for f in file_list:
             if f and check_file(f.filename):

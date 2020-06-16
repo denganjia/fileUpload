@@ -184,6 +184,6 @@ class Work:
             flash('删除作业出错')
             conn.rollback()
         else:
-            cursor.commit()
+            conn.commit()
         finally:
             cursor.close()

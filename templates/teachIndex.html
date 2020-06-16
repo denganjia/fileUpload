@@ -21,7 +21,7 @@
     {%-if job_dict_now %}
         {%-for key,value in job_dict_now.items() %}
             <li>{{ key }} <a href="{{ url_for('main.del_job',jobID= value) }}">删除</a>
-                <a href="{{ url_for('main.end_job',jobname = key) }}">结束</a> </li>
+                <a href="{{ url_for('main.end_job',job_name = key) }}">结束</a> </li>
         {%-endfor %}
     {% else %}
         <li>无</li>

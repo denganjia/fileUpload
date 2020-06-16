@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/iconfont.css') }}" type="text/css">
     <link rel="icon" href="../static/image/head.gif" type="image/gif">
     <script src="{{ url_for('static',filename = 'js/jquery-3.4.1.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/login.js') }}"></script>
+{#    <script src="{{ url_for('static',filename='js/login.js') }}"></script>#}
 </head>
-<body onload="f()">
+<body>
 <div class="login_box">
     <div class="message">
         <h1>志在山顶的人</h1>
@@ -23,9 +23,8 @@
             <h2>LOGIN</h2>
             <form action="" method="POST">
                 {{-form.csrf_token() }}
-                <div class="username">{# <i class="iconfont icon-icon-test"></i> #}{{-form.account }}</div>
-                <div class="password">{# <i class="iconfont icon-password"></i> #}{{-form.password }}</div>
-                {#            {{-form.role.label }}<br>{{-form.role }}<br>#}
+                <div class="username">{{-form.account }}</div>
+                <div class="password">{{-form.password }}</div>
                 <div class="role">{{ form.types }}</div>
                 <div class="submit">{{-form.submit }}</div>
             </form>
@@ -40,7 +39,7 @@
     </div>
 </div>
 <footer>
-    &copy; 5-16-2020
+    &copy;<a href="https://github.com/denganjia/fileUpload">Github</a>. <a href="https://gitee.com/denganjia123/fileUpload">Gitee</a>
 </footer>
 </body>
 </html>
