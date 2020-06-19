@@ -1,10 +1,8 @@
-
-from flask import Flask,g
+from flask import Flask
 from config import config
 from ext import db, login_manager
 import os
 
-config_name = ''
 
 def creat_app(config_name=None):
     if not config_name:
@@ -19,5 +17,11 @@ def creat_app(config_name=None):
 
     from main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    from student import students as students_blueprint
+    app.register_blueprint(students_blueprint)
+
+    from teacher import teachers as teachers_blueprint
+    app.register_blueprint(teachers_blueprint)
 
     return app

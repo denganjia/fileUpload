@@ -17,6 +17,11 @@ class Student(UserMixin, db.Model):
     first_login = db.Column(db.Integer, default=1)
     password_hash = db.Column(db.String(128))
 
+    def __init__(self, Num, Name, first_login):
+        self.s_Num = Num
+        self.s_Name = Name
+        self.first_login = first_login
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')

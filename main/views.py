@@ -1,6 +1,6 @@
 import os, shutil
 
-from flask import render_template, redirect, url_for, send_from_directory, request, current_app, g, flash
+from flask import render_template, redirect, url_for, send_from_directory, request, current_app, g, session, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 
@@ -15,36 +15,9 @@ Work = Work()
 DateIls = DateIls()
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        if form.types.data == 'student':
-            student = check_stu(form.account.data)
-            if student:
-                if student.first_login == 1:
-                    return redirect(url_for('main.chang', account=student.s_Num, role='student', first_login=True))
-                elif student.verify_password(form.password.data):
-                    login_user(student)
-                    return redirect(url_for('main.student_home_page', Account=form.account.data))
-                else:
-                    flash('账号或密码错误！请重新输入')
-
-            else:
-                flash('账号或密码错误！请重新输入')
-        if form.types.data == 'teacher':
-            teacher = check_teacher(form.account.data)
-            if teacher:
-                if teacher.first_login == 1:
-                    return redirect(url_for('main.chang', account=teacher.t_Account, role='teacher', first_login=True))
-                elif teacher.verify_password(form.password.data):
-                    login_user(teacher)
-                    return redirect(url_for('main.teacher_home_page', Account=form.account.data))
-                else:
-                    flash('账号或密码错误！请重新输入')
-            else:
-                flash('账号或密码错误！请重新输入')
-    return render_template('login.html', form=form)
+    return render_template('hello.html')
 
 
 @main.route('/chang_password', methods=['GET', 'POST'])
@@ -92,10 +65,11 @@ def chang():
 @main.route('/home/student/<Account>', methods=['GET', 'POST'])
 @login_required
 def student_home_page(Account):
-    stu = Student.query.filter_by(s_Num=Account).first()
+    # stu = Student.query.filter_by(s_Num=Account).first()
+    stu = session.get('student_name')
     job_list = Work.job_need_upload(Account)
     # return 'Hello World!'
-    return render_template('stuIndex.html', name=stu.s_Name, list=job_list, schoolNo=Account)
+    return render_template('stuIndex.html', name=stu, list=job_list, schoolNo=Account)
 
 
 @main.route('/home/teacher/<Account>', methods=['GET', 'POST'])

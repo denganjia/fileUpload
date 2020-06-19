@@ -4,8 +4,6 @@ import random
 import string
 from datetime import timedelta
 
-import pymysql
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
