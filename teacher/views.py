@@ -1,6 +1,7 @@
 import os
+import shutil
 
-from flask import render_template, redirect, url_for, request, current_app, session
+from flask import render_template, redirect, url_for, request, current_app, session, send_from_directory
 from flask_login import login_user, logout_user, login_required
 
 from . import teachers
@@ -78,6 +79,53 @@ def change_password(account):
         return render_template('changePassword.html', form=form)
 
 
+@teachers.route('/download/<path:filename>', methods=['GET'])
+@login_required
+def download(filename):
+    """文件下载"""
+    dir_path = current_app.config['OUTPUT_FOLDER']
+    filename = filename + '.zip'
+    return send_from_directory(dir_path, filename, as_attachment=True)
+
+
+@teachers.route('/endJob/<job_name>')
+@login_required
+def end_job(job_name):
+    """结束作业后，将当前收集的作业打包，数据库作业状态修改为结束"""
+    job = Job.query.filter_by(job_name=job_name).first()
+    tea = Teacher.query.filter_by(t_Name=job.t_name).first()
+    TeachersFuc.end_job(job_name)
+    base_name = current_app.config['OUTPUT_FOLDER'] + job_name
+    for_mat = 'zip'
+    root_dir = current_app.config['UPLOAD_FOLDER'] + job.job_path
+    shutil.make_archive(base_name, for_mat, root_dir)
+    return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+
+
+@teachers.route('/delete_job/<jobID>')
+@login_required
+def del_job(jobID):
+    """删除作业会删除本地存储目录和数据库相关记录"""
+    job = Job.query.filter_by(job_id=jobID).first()
+    tea = Teacher.query.filter_by(t_Name=job.t_name).first()
+    try:
+        shutil.rmtree(os.path.join(current_app.config['UPLOAD_FOLDER'], job.job_path))
+        TeachersFuc.delete_job(jobID)
+    except():
+        return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+    return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+
+
+@teachers.route('/details/<job_id>')
+@login_required
+def details(job_id):
+    """返回两个字典：提交和未提交的学号、姓名"""
+    job = Job.query.filter_by(job_id=job_id).first()
+    is_submit = TeachersFuc.is_submit(job_id)
+    no_submit = TeachersFuc.no_submit(job_id)
+    return render_template('details.html', job_name=job.job_name, isSubmit=is_submit, noSubmit=no_submit)
+
+
 @login_manager.user_loader
 def user_loader(user_id):
     return Teacher.query.get(int(user_id))
@@ -87,4 +135,4 @@ def user_loader(user_id):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('teachers.login'))
+    return redirect(url_for('main.main'))

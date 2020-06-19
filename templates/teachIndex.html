@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Hello,Teacher {{ name }}!</h1>
-<p><a href="{{ url_for('main.logout') }}">登出</a></p>
+<p><a href="{{ url_for('teachers.logout') }}">登出</a></p>
 <p>您所教授的课程是{{ classname }}</p>
 <hr>
 <form action="" method="post">
@@ -20,8 +20,8 @@
     <h4>进行中的作业</h4>
     {%-if job_dict_now %}
         {%-for key,value in job_dict_now.items() %}
-            <li>{{ key }} <a href="{{ url_for('main.del_job',jobID= value) }}">删除</a>
-                <a href="{{ url_for('main.end_job',job_name = key) }}">结束</a> </li>
+            <li>{{ key }} <a href="{{ url_for('teachers.del_job',jobID= value) }}">删除</a>
+                <a href="{{ url_for('teachers.end_job',job_name = key) }}">结束</a> </li>
         {%-endfor %}
     {% else %}
         <li>无</li>
@@ -33,7 +33,7 @@
     <h4>已结束的作业</h4>
     {%-if job_dict_end %}
         {%-for key,values in job_dict_end.items() %}
-            <li><a href="{{ url_for('main.dateils',job_id = values) }}">{{ key }}</a></li>
+            <li><a href="{{ url_for('teachers.details',job_id = values) }}">{{ key }}</a></li>
         {%-endfor %}
     {% else %}
         <li>无</li>

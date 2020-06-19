@@ -92,4 +92,4 @@ def loader_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('students.login'))
+    return redirect(url_for('main.main'))
