@@ -20,6 +20,7 @@ def login():
         if teacher:
             if teacher.verify_password(form.password.data):
                 login_user(teacher)
+                session['account'] = teacher.t_Account
                 session['teacher_name'] = teacher.t_Name
                 # session['teacher_account'] = teacher.t_Account
                 session['class_name'] = teacher.c_Name
@@ -37,9 +38,10 @@ def login():
 @login_required
 def home_page(account):
     form = CreateJobFrom()
+
     teacher_name = session.get('teacher_name')
-    # teacher_account = session.get('teacher_account')
-    t_account = account
+    teacher_account = session.get('teacher_account')
+    # t_account = account
     class_name = session.get('class_name')
     now_job_dic = TeachersFuc.job_list(teacher_name, 0)
     end_job_dic = TeachersFuc.job_list(teacher_name, 1)
@@ -47,14 +49,34 @@ def home_page(account):
         new_job_name = form.job_Name.data
         upload_path = class_name + '/' + new_job_name
         try:
+            TeachersFuc.creat_job(teacher_name, class_name, new_job_name, upload_path)
             os.mkdir(current_app.config['UPLOAD_FOLDER'] + upload_path)
-        except():
+        except ():
             flash("作业已存在!")
-        TeachersFuc.creat_job(teacher_name, class_name, new_job_name, upload_path)
-        return redirect(url_for('teachers.home_page', account=t_account))
-    return render_template('teachIndex.html', name=teacher_name, class_name=class_name,
+        return redirect(url_for('teachers.home_page', account=account))
+    return render_template('teachIndex.html', name=teacher_name, classname=class_name,
                            form=form, job_dict_now=now_job_dic,
                            job_dict_end=end_job_dic)
+
+
+# tea = Teachers.query.filter_by(t_Account=teachID).first()
+# 	form = Create_job_From()
+# 	classname = tea.c_Name
+# 	now_job_dict = Work.job_list(tea.t_Name, 0)
+# 	end_job_dict = Work.job_list(tea.t_Name, 1)
+# 	if request.method == 'POST':
+# 		job_name = form.job_Name.data
+# 		upload_path = classname + '\\' + job_name
+# 		try:
+# 			os.makedirs(UPLOAD_FOLDER + upload_path)
+# 		except:
+# 			flash('作业已存在')
+# 			return redirect(url_for('teaIndex', teachID=teachID))
+# 		Work.creat_job(tea.t_Name, classname, job_name, upload_path)
+# 		return redirect(url_for('teaIndex', teachID=teachID))
+# 	return render_template('teachIndex.html', name=tea.t_Name, classname=classname, form=form,
+# 	                       job_dict_now=now_job_dict,
+# 	                       job_dict_end=end_job_dict)
 
 
 @teachers.route('/teachers/change_password<account>', methods=['GET', 'POST'])
@@ -88,6 +110,26 @@ def download(filename):
     return send_from_directory(dir_path, filename, as_attachment=True)
 
 
+# @teachers.route('/create_job/', methods=['POST'])
+# @login_required
+# def create_job():
+#     t_account = session.get('account')
+#     create_job_form = CreateJobFrom()
+#     teacher_name = session.get('teacher_name')
+#     class_name = session.get('class_name')
+#     if create_job_form.validate_on_submit():
+#         new_job_name = create_job_form.job_Name.data
+#         upload_path = class_name + '/' + new_job_name
+#         try:
+#             TeachersFuc.creat_job(teacher_name, class_name, new_job_name, upload_path)
+#         except():
+#             flash("作业已存在!")
+#         else:
+#             os.mkdir(current_app.config['UPLOAD_FOLDER'] + upload_path)
+#
+#     return redirect(url_for('teachers.home_page', account=t_account))
+
+
 @teachers.route('/endJob/<job_name>')
 @login_required
 def end_job(job_name):
@@ -99,7 +141,7 @@ def end_job(job_name):
     for_mat = 'zip'
     root_dir = current_app.config['UPLOAD_FOLDER'] + job.job_path
     shutil.make_archive(base_name, for_mat, root_dir)
-    return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+    return redirect(url_for('teachers.home_page', account=tea.t_Account))
 
 
 @teachers.route('/delete_job/<jobID>')
@@ -112,8 +154,10 @@ def del_job(jobID):
         shutil.rmtree(os.path.join(current_app.config['UPLOAD_FOLDER'], job.job_path))
         TeachersFuc.delete_job(jobID)
     except():
-        return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
-    return redirect(url_for('main.teacher_home_page', Account=tea.t_Account))
+        flash("出错了！")
+        return redirect(url_for('teachers.home_page', account=tea.t_Account))
+    finally:
+        return redirect(url_for('teachers.home_page', account=tea.t_Account))
 
 
 @teachers.route('/details/<job_id>')

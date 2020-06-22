@@ -1,7 +1,6 @@
 from models import Student, Job
 from config import Config
 from xpinyin import Pinyin
-from flask import flash
 
 import pymysql
 
@@ -24,6 +23,7 @@ class StudentFuc:
         :return: 返回SQL alchemy对象
         """
         stu = Student.query.filter_by(s_Num=Account).first()
+
         return stu
 
     @staticmethod
@@ -45,69 +45,45 @@ class StudentFuc:
     def check_file(filename):
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
-    @staticmethod
-    def job_need_upload(schoolNo):
-        """
 
-        :param schoolNo:学号
-        :return:返回学生没有提交的作业
-        """
-        cursor = conn.cursor()
-        sql = """SELECT COLUMN_NAME from information_schema.columns where TABLE_NAME='courses'"""
-        cursor.execute(sql)
-        res = cursor.fetchall()
-        job_list = []
-        for i in res:
-            job_list.append(i[0])
-        job_list = job_list[2:]
-        res_l = []
-        for j in range(len(job_list)):
-            sql = 'select %s from courses where stu_Num = %s' % (job_list[j], schoolNo)
-            cursor.execute(sql)
-            res = cursor.fetchone()
-            if res[0] == 0:
-                res_l.append(job_list[j])
-        job_need_upload_list = []
-        for i in res_l:
-            jobs = Job.query.filter_by(job_id=str(i), is_over=0)  # "select job_name from jobs where job_id = '%s'" % i
-            # cursor.execute(sql)
-            # res = cursor.fetchall()
-            for job in jobs:
-                job_need_upload_list.append(job.job_name)
-        cursor.close()
-        return job_need_upload_list
+def job_need_upload(schoolNo):
+    """
 
-    @staticmethod
-    def job_list(t_name, n):
-        """
-        :param t_name: 课程名
-        :param n: 1 or 0
-        :return: 返回作业列表
-        """
-        jobs = Job.query.filter_by(t_name=t_name, is_over=n).all()
-        jobs_name_dict = {}
-        for job in jobs:
-            jobs_name_dict[job.job_name] = job.job_id
-        return jobs_name_dict
-
-    @staticmethod
-    def delete_job(jobID):
-        """
-
-        :param jobID: 课程ID
-        :return:
-        """
-        cursor = conn.cursor()
-        sql_del_jobs = "delete from jobs where job_id = '%s'" % jobID
-        sql_del_courses = "alter table courses drop column %s" % jobID
+    :param schoolNo:学号
+    :return:列表
+    """
+    cursor = conn.cursor()
+    sql = """SELECT COLUMN_NAME from information_schema.columns where TABLE_NAME='courses'"""
+    cursor.execute(sql)
+    res = cursor.fetchall()
+    job_list = []
+    # print(res)
+    for i in res:
+        job_list.append(i[0])
+    job_list = job_list[2:]
+    # print("job_list", job_list)
+    res_list = []
+    for j in range(len(job_list)):
+        sql = 'select %s from courses where stu_Num = %s'
+        cursor.execute(sql, (job_list[j], schoolNo,))
+        res = cursor.fetchone()
+        # print(res)
+        if res[0] == 0:
+            res_list.append(job_list[j])
+    # print("res_l", res_list)
+    job_need_upload_list = []
+    for res_l in res_list:
+        jobs = Job.query.filter(Job.job_id == res_l).filter(Job.is_over == 0).first()
         try:
-            cursor.execute(sql_del_jobs)
-            cursor.execute(sql_del_courses)
+            job_need_upload_list.append(jobs.job_name)
+        except Exception:
+            pass
+        # sql = "select job_name from jobs where job_id = %s and is_over = 0;"
+        # cursor.execute(sql, (res_l,))
+        # res = cursor.fetchone()
+        # if res:
+        #     job_need_upload_list.append(res[0])
 
-        except():
-            flash('删除作业出错')
-            conn.rollback()
-        else:
-            conn.commit()
-        finally:
-            cursor.close()
+    cursor.close()
+    # print("job_need_upload_list", job_need_upload_list)
+    return job_need_upload_list

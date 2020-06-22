@@ -1,9 +1,9 @@
-from flask import flash
+from flask import flash, redirect
 
 from ext import db
 from models import Teacher, Job
 
-from xpinyin import Pinyin as P
+from xpinyin import Pinyin
 
 import pymysql
 
@@ -13,6 +13,8 @@ conn = pymysql.connect(host='localhost',
                        password='123456',
                        db='class',
                        charset='utf8')
+
+P = Pinyin()
 
 
 def check_teacher(Account):
@@ -62,36 +64,34 @@ class TeachersFuc:
             cursor.close()
 
     @staticmethod
-    def creat_job(t_name, classname, job_name, upload_path):
+    def creat_job(t_name, classname, jobName, upload_path):
         """
         创建作业
         :param upload_path: 保存上传的作业的路径
         :param classname: 班级名称
         :param t_name: 教师名称
-        :param job_name: 作业名称
+        :param jobName: 作业名称
         :return:
         """
         cursor = conn.cursor()
-        jobs = Job.query.filter_by(job_name=classname + job_name).first()
+        jobs = Job.query.filter_by(job_name=classname + jobName).first()
         if jobs:
             flash('作业已存在')
         else:
-            job_id = P.get_initials(classname, '') + P.get_initials(job_name, '')
-            job_creat = Job(job_name=classname + job_name, t_name=t_name, job_id=job_id, job_path=upload_path)
+            _job_id = P.get_initials(classname + jobName, '')
+            job_creat = Job(job_name=classname + jobName, t_name=t_name, job_id=_job_id, job_path=upload_path)
             # sql = "insert into jobs(jobs,is_over,job_id) values ('%s',0,'%s')" % (classname + job_name, job_id)
-            sql_courses_alter = 'alter table courses add %s int default 0 ' % job_id
+            sql = "alter table `courses` add {} int default 0;"
             try:
+                cursor.execute(sql.format(_job_id))
                 db.session.add(job_creat)
-                cursor.execute(sql_courses_alter)
-                db.session.commit()
+
             except():
                 conn.rollback()
                 db.session.rollback()
-                flash("出错！")
             else:
+                db.session.commit()
                 flash('创建成功')
-            finally:
-                cursor.close()
 
     @staticmethod
     def end_job(job_name):
@@ -101,8 +101,12 @@ class TeachersFuc:
         :return:
         """
         cursor = conn.cursor()
-        sql = "update jobs set is_over = 1 where job_name = '%s' " % job_name
-        cursor.execute(sql)
+        sql = "update jobs set is_over = 1 where job_name = %s "
+        try:
+            cursor.execute(sql, (job_name,))
+        except (Exception):
+            flash('出错了！')
+            cursor.close()
 
     @staticmethod
     def delete_job(jobID):
@@ -112,12 +116,11 @@ class TeachersFuc:
         :return:
         """
         cursor = conn.cursor()
-        sql_del_jobs = "delete from jobs where job_id = '%s'" % jobID
-        sql_del_courses = "alter table courses drop column %s" % jobID
+        sql_del_jobs = "delete from jobs where job_id = %s"
+        sql_del_courses = "alter table courses drop column {}"
         try:
-            cursor.execute(sql_del_jobs)
-            cursor.execute(sql_del_courses)
-
+            cursor.execute(sql_del_jobs, (jobID,))
+            cursor.execute(sql_del_courses.format(jobID))
         except():
             flash('删除作业出错')
             conn.rollback()
@@ -125,3 +128,4 @@ class TeachersFuc:
             conn.commit()
         finally:
             cursor.close()
+            return 0

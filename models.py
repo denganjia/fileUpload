@@ -17,10 +17,10 @@ class Student(UserMixin, db.Model):
     first_login = db.Column(db.Integer, default=1)
     password_hash = db.Column(db.String(128))
 
-    def __init__(self, Num, Name, first_login):
+    def __init__(self, Num, Name, _first_login):
         self.s_Num = Num
         self.s_Name = Name
-        self.first_login = first_login
+        self.first_login = _first_login
 
     @property
     def password(self):
@@ -32,9 +32,6 @@ class Student(UserMixin, db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return '<Student %r>' % self.name
 
     def get_id(self):
         return self.s_ID
@@ -79,3 +76,10 @@ class Job(db.Model):
     job_id = db.Column(db.String(64), unique=True)
     is_over = db.Column(db.Integer, default=0)
     job_path = db.Column(db.String(16))
+
+    # def __init__(self, _job_name, _t_name, _is_over=None, _job_path=None, _job_id=None):
+    #     self.job_name = _job_name
+    #     self.t_name = _t_name
+    #     self.job_id = _job_id
+    #     self.is_over = _is_over
+    #     self.job_path = _job_path

@@ -8,6 +8,6 @@
     <title>500</title>
 </head>
 <body>
-<p>抱歉！服务器出错了 <a href="">返回</a></p>
+<p>抱歉！服务器出错了 <a href="{{ url_for(request.referrer) }}">返回</a></p>
 </body>
 </html>
